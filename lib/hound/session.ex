@@ -25,8 +25,9 @@ defmodule Hound.Session do
       desiredCapabilities: capabilities
     }
 
-    # No retries for this request
-    make_req(:post, "session", params)
+    # Session creation changes server state and must never be replayed:
+    # a retry could orphan a session that was actually created.
+    make_req(:post, "session", params, %{}, 0)
   end
 
   @doc "Make capabilities for session"
@@ -56,7 +57,9 @@ defmodule Hound.Session do
   @doc "Destroy a session"
   @spec destroy_session(String.t) :: :ok
   def destroy_session(session_id) do
-    make_req(:delete, "session/#{session_id}")
+    # Destroying a session changes server state and must never be
+    # replayed, even on transport failures.
+    make_req(:delete, "session/#{session_id}", %{}, %{}, 0)
   end
 
 

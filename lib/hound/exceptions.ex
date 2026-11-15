@@ -2,6 +2,32 @@ defmodule Hound.Error do
   defexception [:message]
 end
 
+defmodule Hound.WebDriverError do
+  @moduledoc """
+  Raised when a webdriver replies with an error response.
+
+  It keeps the error in a single shape across drivers (ChromeDriver,
+  Selenium and PhantomJS):
+
+    * `:driver`     - atom identifying the driver that produced the error
+    * `:category`   - normalized error category (e.g. `:no_such_element`),
+      `nil` when the driver error could not be categorized
+    * `:message`    - human readable error message
+    * `:value`      - the raw error payload returned by the driver
+    * `:status`     - HTTP status code of the response, when available
+    * `:transport`  - `true` when the request never reached the driver
+      (connection refused, timeout, ...). Only those failures are safe
+      to replay for commands that change session state.
+  """
+
+  defexception [:driver, :category, :message, :value, :status, transport: false]
+
+  @impl true
+  def message(err) do
+    "#{err.driver} webdriver error: #{err.message}"
+  end
+end
+
 defmodule Hound.NoSuchElementError do
   defexception [:strategy, :selector, :parent]
 

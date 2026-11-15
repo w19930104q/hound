@@ -98,7 +98,10 @@ defmodule Hound.SessionServer do
   defp create_session(driver_info, opts) do
     case Hound.Session.create_session(driver_info[:browser], opts) do
       {:ok, session_id} -> session_id
-      {:error, reason} -> raise "could not create a new session: #{reason}, check webdriver is running"
+      {:error, %Hound.WebDriverError{} = err} ->
+        raise "could not create a new session: #{Exception.message(err)}, check webdriver is running"
+      {:error, reason} ->
+        raise "could not create a new session: #{inspect(reason)}, check webdriver is running"
     end
   end
 

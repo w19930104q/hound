@@ -47,6 +47,10 @@ defmodule Hound.Helpers.Page do
   def find_element(strategy, selector, retries \\ 5) do
     case search_element(strategy, selector, retries) do
       {:ok, element} -> element
+      {:error, %Hound.WebDriverError{category: :no_such_element}} ->
+        raise Hound.NoSuchElementError, strategy: strategy, selector: selector
+      {:error, %Hound.WebDriverError{} = err} ->
+        raise Hound.Error, "could not get element {#{inspect(strategy)}, #{inspect(selector)}}: #{err.message}"
       {:error, :no_such_element} ->
         raise Hound.NoSuchElementError, strategy: strategy, selector: selector
       {:error, err} ->
@@ -118,8 +122,12 @@ defmodule Hound.Helpers.Page do
   @spec find_within_element(Hound.Element.t, Hound.Element.strategy, String.t, non_neg_integer) :: Hound.Element.t
   def find_within_element(element, strategy, selector, retries \\ 5) do
     case search_within_element(element, strategy, selector, retries) do
+      {:error, %Hound.WebDriverError{category: :no_such_element}} ->
+        raise Hound.NoSuchElementError, strategy: strategy, selector: selector, parent: element
       {:error, :no_such_element} ->
         raise Hound.NoSuchElementError, strategy: strategy, selector: selector, parent: element
+      {:error, %Hound.WebDriverError{} = err} ->
+        raise Hound.Error, "could not get element {#{inspect(strategy)}, #{inspect(selector)}} in #{element}: #{err.message}"
       {:error, err} ->
         raise Hound.Error, "could not get element {#{inspect(strategy)}, #{inspect(selector)}} in #{element}: #{inspect(err)}"
       {:ok, element} -> element
