@@ -42,9 +42,12 @@ defmodule Hound.Helpers.Session do
   def in_browser_session(session_name, func) do
     previous_session_name = current_session_name()
     change_session_to(session_name)
-    result = apply(func, [])
-    change_session_to(previous_session_name)
-    result 
+
+    try do
+      apply(func, [])
+    after
+      change_session_to(previous_session_name)
+    end
   end
 
 

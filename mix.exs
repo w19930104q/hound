@@ -7,6 +7,7 @@ defmodule Hound.Mixfile do
     [ app: :hound,
       version: @version,
       elixir: ">= 1.4.0",
+      elixirc_paths: elixirc_paths(Mix.env),
       description: "Webdriver library for integration testing and browser automation",
       source_url: "https://github.com/HashNuke/hound",
       deps: deps(),
@@ -18,11 +19,15 @@ defmodule Hound.Mixfile do
 
   def application do
     [
-      extra_applications: [:logger],
+      extra_applications: [:logger, :inets],
       mod: {Hound, []},
       description: 'Integration testing and browser automation library',
     ]
   end
+
+
+  defp elixirc_paths(:test), do: ["lib", "test/support"]
+  defp elixirc_paths(_),     do: ["lib"]
 
 
   defp deps do

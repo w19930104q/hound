@@ -54,9 +54,10 @@ defmodule Hound.Session do
 
 
   @doc "Destroy a session"
-  @spec destroy_session(String.t) :: :ok
-  def destroy_session(session_id) do
-    make_req(:delete, "session/#{session_id}")
+  @spec destroy_session(String.t, Keyword.t) :: :ok
+  def destroy_session(session_id, opts \\ []) do
+    retries = Keyword.get(opts, :retries, Application.get_env(:hound, :retries, 0))
+    make_req(:delete, "session/#{session_id}", %{}, %{}, retries)
   end
 
 
